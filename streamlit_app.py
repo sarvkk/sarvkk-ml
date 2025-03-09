@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 st.title('Machine Learning App')
 
-st.info('This app builds a machine learning model')
+st.info('RandomForestClassifier for Penguin species prediction.')
 
 with st.expander('Data'):
   st.write('**Raw data**')
@@ -72,50 +72,48 @@ with st.expander('Data preparation'):
   st.write("**Encoded y**")
   y
 
-#Model Training
-#train the model
+# Model training and inference
+## Train the ML model
 clf = RandomForestClassifier()
-clf.fit(X,y)
+clf.fit(X, y)
 
-#apply the model to make predictions
+## Apply model to make predictions
 prediction = clf.predict(input_row)
 prediction_proba = clf.predict_proba(input_row)
 
-df_prediction_proba= pd.DataFrame(prediction_proba)
-df_prediction_proba.column=['Adelie','Chinstrap','Gentoo']
-df_prediction_proba.rename(columns={0:'Adelie',
-                                    1:'Chinstrap',
-                                    2:'Gentoo'})
+df_prediction_proba = pd.DataFrame(prediction_proba)
+df_prediction_proba.columns = ['Adelie', 'Chinstrap', 'Gentoo']
+df_prediction_proba.rename(columns={0: 'Adelie',
+                                 1: 'Chinstrap',
+                                 2: 'Gentoo'})
 
-                                  
-#display predicted species
+# Display predicted species
 st.subheader('Predicted Species')
 st.dataframe(df_prediction_proba,
              column_config={
-               'Adelie':st.column_config.ProgressColumn(
-                  'Adelie',                                             
-                  format='%f',                                                                     
-                  width='medium',   
-                  min_value=0,
-                  max_value=1),
-              'Chinstrap':st.column_config.ProgressColumn(
-                  'Chinstrap',                                             
-                  format='%f',                                                                     
-                  width='medium',   
-                  min_value=0,
-                  max_value=1),
-               'Gentoo':st.column_config.ProgressColumn(
-                  'Gentoo',                                             
-                  format='%f',                                                                     
-                  width='medium',   
-                  min_value=0,
-                  max_value=1
+               'Adelie': st.column_config.ProgressColumn(
+                 'Adelie',
+                 format='%f',
+                 width='medium',
+                 min_value=0,
+                 max_value=1
                ),
-             },hide_index=True)
-                                                                                         
+               'Chinstrap': st.column_config.ProgressColumn(
+                 'Chinstrap',
+                 format='%f',
+                 width='medium',
+                 min_value=0,
+                 max_value=1
+               ),
+               'Gentoo': st.column_config.ProgressColumn(
+                 'Gentoo',
+                 format='%f',
+                 width='medium',
+                 min_value=0,
+                 max_value=1
+               ),
+             }, hide_index=True)
 
 
-df_prediction_proba
-
-penguins_species = np.array(['Adelie','Chinstrap','Gentoo'])
+penguins_species = np.array(['Adelie', 'Chinstrap', 'Gentoo'])
 st.success(str(penguins_species[prediction][0]))
