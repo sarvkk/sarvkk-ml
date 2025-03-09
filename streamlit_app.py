@@ -1,5 +1,7 @@
 import streamlit as st
+import numpy as np
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 
 st.title('Machine Learning App')
 
@@ -11,17 +13,17 @@ with st.expander('Data'):
   df
 
   st.write('**X**')
-  X=df.drop('species',axis=1)
-  X
+  X_raw=df.drop('species',axis=1)
+  X_raw
   
   st.write('**y**')
-  y=df.species
-  y
+  y_raw=df.species
+  y_raw
 
 with st.expander('Data Visualization'):
   st.scatter_chart(data=df,x='bill_length_mm',y='body_mass_g',color='species')
 
-# Data preparation
+# Input Featues
 with st.sidebar:
   st.header('Input features')
   island=st.selectbox('Island',('Biscoe','Dream','Torgersen'))
@@ -37,12 +39,84 @@ with st.sidebar:
           'bill_depth_mm':bill_depth_mm,
           'flipper_length_mm':flipper_length_mm,
           'body_mass_g':body_mass_g,
-          'gender':gender}
+          'sex':gender}
   input_df= pd.DataFrame(data,index=[0])
-  input_penguins = pd.concat([input_df,X],axis=0)  
+  input_penguins = pd.concat([input_df,X_raw],axis=0)  
 
 with st.expander('Input features'):
   st.write('**Input penguin features**')
   input_df
   st.write('**Combined penguins feature**')
   input_penguins
+
+#data prep
+#Encode X
+encode = ['island','sex']
+df_penguins= pd.get_dummies(input_penguins,prefix=encode)
+X= df_penguins[1:]
+input_row = df_penguins[:1]
+#Encode y
+target_mapper = {
+  'Adelie':0,
+  'Chinstrap':1,
+  'Gentoo':2}
+def target_encode(val):
+  return target_mapper[val]
+
+y=y_raw.apply(target_encode)
+y
+y_raw
+
+with st.expander('Data preparation'):
+  st.write('**Encoded input penguin(X)**')
+  input_row
+  st.write("**Encoded y**")
+  y
+
+#Model Training
+#train the model
+clf = RandomForestClassifier()
+clf.fit(X,y)
+
+#apply the model to make predictions
+prediction = clf.predict(input_row)
+prediction_proba = clf.predict_proba(input_row)
+
+df_prediction_proba= pd.DataFrame(prediction_proba)
+df_prediction_proba.column=['Adelie','Chinstrap','Gentoo']
+df_prediciton_proba.rename(columns={0:'Adelie',
+                                    1:'Chinstrap',
+                                    2:'Gentoo'})
+
+                                  
+#display predicted species
+st.subheader('Predicted Species')
+st.dataframe(df_prediction_proba,
+             column_config={
+               'Adelie':st.column_config.ProgressColumn(
+                  'Adelie',                                             
+                  format='%f',                                                                     
+                  width='medium',   
+                  min_value=0,
+                  max_value=1),
+              'Chinstrap':st.column_config.ProgressColumn(
+                  'Chinstrap',                                             
+                  format='%f',                                                                     
+                  width='medium',   
+                  min_value=0,
+                  max_value=1),
+               'Gentoo':st.column_config.ProgressColumn(
+                  'Gentoo',                                             
+                  format='%f',                                                                     
+                  width='medium',   
+                  min_value=0,
+                  max_value=1
+               ),
+             },hide_index=True)
+                                                                                         
+
+
+df_prediciton_proba
+
+penguins_species = np.array(['Adelie','Chinstrap','Gentoo'])
+st.success(str(penguins_species[prediction][0]))
