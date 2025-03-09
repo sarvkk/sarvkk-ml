@@ -24,7 +24,7 @@ if df is None:
     st.stop()
 
 st.title('Machine Learning App')
-st.info('RandomForestClassifier for Penguin species prediction.')
+st.info('Using random forest for Penguin species prediction')
 
 # Display raw data and features
 with st.expander('Data'):
