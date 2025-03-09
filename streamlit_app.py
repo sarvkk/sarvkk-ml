@@ -46,7 +46,9 @@ with st.expander('Data Visualization'):
     st.scatter_chart(data=df, x='bill_length_mm', y='body_mass_g', color='species')
     
     st.write("### Correlation Heatmap")
-    corr = df.corr()
+    # Select only numeric columns to avoid conversion errors
+    numeric_df = df.select_dtypes(include=[np.number])
+    corr = numeric_df.corr()
     fig, ax = plt.subplots()
     sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
     st.pyplot(fig)
@@ -61,7 +63,7 @@ with st.sidebar:
     bill_length_mm = st.slider("Bill Length (mm)", 32.1, 59.6, 43.9)
     bill_depth_mm = st.slider("Bill Depth (mm)", 13.1, 21.5, 17.2)
     flipper_length_mm = st.slider("Flipper Length (mm)", 172.0, 231.0, 201.0)
-    # Fix: default value is set within the range of 2700.0 and 4207.0
+    # Fixed: default value set within the range (2700.0, 4207.0)
     body_mass_g = st.slider("Body Mass (g)", 2700.0, 4207.0, 3700.0)
     gender = st.selectbox('Gender', ('Male', 'Female'))
 
@@ -90,8 +92,7 @@ with st.expander('Input Features'):
 # To avoid merging issues, we encode input data and training data separately using get_dummies
 def prepare_features(df):
     # Create dummies for categorical features
-    encode = ['island', 'sex']
-    return pd.get_dummies(df, columns=encode)
+    return pd.get_dummies(df, columns=['island', 'sex'])
 
 # Encode training data (excluding the species column)
 X_train = prepare_features(X_raw)
